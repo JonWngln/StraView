@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct signInView: View {
+    @ObservedObject private var viewModel = SignInViewModel()
+
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
@@ -19,7 +21,7 @@ struct signInView: View {
                     .cornerRadius(10)
                 Spacer()
                     .frame(height: 200)
-                Button(action: {}) {
+                Button(action: { viewModel.signInTapped() } ) {
                     Text("Sign in with Strava")
                         .font(.headline)
                         .foregroundColor(.white)
