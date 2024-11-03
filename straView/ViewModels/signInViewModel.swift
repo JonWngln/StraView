@@ -9,7 +9,6 @@ import AuthenticationServices
 import SwiftUI
 
 class SignInViewModel: NSObject, ObservableObject {
-    @Published var isSigningIn: Bool = false
     
     func signInTapped() {
         guard let signInURL =
@@ -35,7 +34,6 @@ class SignInViewModel: NSObject, ObservableObject {
                   switch result {
                   case .success:
                       print("Authentication successful")
-                      print(result)
                   case .failure(let error):
                       print("Failed to authenticate: \(error)")
                   }

@@ -11,7 +11,7 @@ import SwiftUI
 struct straViewApp: App {
     var body: some Scene {
         WindowGroup {
-            signInView()
+            ContentView()
         }
     }
 }

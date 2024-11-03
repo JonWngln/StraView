@@ -8,14 +8,19 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject private var viewmodel = ContentViewModel()
+    
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            if viewmodel.isLoggedIn {
+                athleteView()
+            } else {
+                signInView()
+            }
         }
-        .padding()
+        .onAppear {
+            viewmodel.appeared()
+        }
     }
 }
 

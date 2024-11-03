@@ -14,7 +14,6 @@ class strava_connection {
     static let clientSecret = "53fe9651dc51e9b08f55a0aa9269235b0e8aad9d"
     static let redirect_uri = "myapp://myapp.com"
     static let scope = "read_all"
-    static var accessToken: String?
     
     static func createAuthorizationURL() -> URL? {
         var components = URLComponents(string: "https://www.strava.com/oauth/authorize")
@@ -48,13 +47,49 @@ class strava_connection {
                 print(data)
                 let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
                 self.accessToken = tokenResponse.accessToken
-                // Store the token in Keychain here
-                
                 completion(.success(()))
             } catch {
                 completion(.failure(error))
             }
         }.resume()
-
     }
+    
+    static func getAthlete() async throws -> Athlete {
+        let endpoint = "https://www.strava.com/api/v3/athlete"
+        guard let url = URL(string: endpoint) else {
+            throw StravaError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        guard let accessToken = strava_connection.accessToken else {
+            throw StravaError.invalidToken
+        }
+        print(accessToken)
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw StravaError.invalidResponse
+        }
+        
+        do {
+            print(String(data: data, encoding: .utf8) ?? "No readable data")
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let athlete = try decoder.decode(Athlete.self, from: data)
+            print(athlete)
+            return athlete
+        } catch let decodingError{
+            print("Decoding error: \(decodingError)")
+            throw StravaError.invalidData
+        }
+    }
+}
+
+enum StravaError: Error {
+    case invalidResponse
+    case invalidData
+    case invalidToken
+    case invalidURL
 }
