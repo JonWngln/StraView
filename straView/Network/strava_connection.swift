@@ -26,7 +26,7 @@ class strava_connection {
         return components?.url
     }
     
-    static func codeExchange(code: String) {
+    static func codeExchange(code: String) async {
         let url = URL(string: "https://www.strava.com/oauth/token")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -39,7 +39,9 @@ class strava_connection {
                 do {
                     let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
                     self.accessToken = tokenResponse.accessToken
+                    // Need to make sure, that token is saved, before attempting to load Athlete
                     saveTokenResponse(tokenResponse)
+                    print("token saved")
                 } catch {
                     print("error: \(error)")
                 }
@@ -47,8 +49,34 @@ class strava_connection {
         }.resume()
     }
     
+    static func codeRefresh() async {
+        let url = URL(string: "https://www.strava.com/oauth/token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        let body = "client_id=\(clientID)&client_secret=\(clientSecret)&grant_type=refresh_token&refresh_token=\(String(describing: refreshToken))"
+        request.httpBody = body.data(using: .utf8)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data {
+                do {
+                    let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
+                    self.accessToken = tokenResponse.accessToken
+                    saveTokenResponse(tokenResponse)
+                    print("token saved")
+                } catch {
+                    print("error: \(error)")
+                }
+            }
+        }.resume()
+        
+    }
+    
     static func getAthlete() async throws -> Athlete {
         print("getting Athlete")
+        if isTokenExpired() {
+            await codeRefresh()
+        }
         let endpoint = "https://www.strava.com/api/v3/athlete"
         guard let url = URL(string: endpoint) else {
             throw StravaError.invalidURL

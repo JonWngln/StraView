@@ -16,10 +16,13 @@ struct athleteView: View {
                 Section {
                     HStack {
                         Image(systemName: "person.crop.circle.fill")
-                        VStack {
+                        Spacer()
+                            .frame(width: 30)
+                        VStack(alignment: .leading) {
                             Text(athlete.firstname!)
                             Text(athlete.lastname!)
                         }
+                        
                     }
                 }
                 Section("General") {
@@ -34,6 +37,12 @@ struct athleteView: View {
                             authViewModel.signOut()
                         }
                     }
+                    .foregroundStyle(.red)
+                }
+            }
+            .refreshable {
+                Task {
+                    try await strava_connection.getAthlete()
                 }
             }
         }
@@ -42,5 +51,5 @@ struct athleteView: View {
 
 #Preview {
     athleteView()
-        .environmentObject(AuthViewModel())
+        .environment(AuthViewModel.example)
 }

@@ -19,6 +19,13 @@ class AuthViewModel: NSObject, ObservableObject {
         tokenResponse = strava_connection.loadTokenResponse()
     }
     
+    //Preview init
+    init(currentAthlete: Athlete?, tokenResponse: TokenResponse?) {
+        self.currentAthlete = currentAthlete
+        self.tokenResponse = tokenResponse
+        super.init()
+    }
+    
     func signIn() {
         print("Sign in")
         startInitialAuthSession()
@@ -53,8 +60,8 @@ class AuthViewModel: NSObject, ObservableObject {
           print("An error occurred when attempting to sign in.")
           return
         }
-            strava_connection.codeExchange(code: code)
             Task {
+                await strava_connection.codeExchange(code: code)
                 await self.createAthlete()
             }
             
@@ -81,4 +88,8 @@ extension AuthViewModel: ASWebAuthenticationPresentationContextProviding {
     let window = UIApplication.shared.windows.first { $0.isKeyWindow }
     return window ?? ASPresentationAnchor()
   }
+}
+
+extension AuthViewModel: Observable {
+    static var example: AuthViewModel = AuthViewModel(currentAthlete: Athlete.TEST_ATHLETE, tokenResponse: Athlete.TEST_ATHLETE.tokenResponse)
 }

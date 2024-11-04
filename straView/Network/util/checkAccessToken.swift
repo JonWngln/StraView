@@ -5,7 +5,19 @@
 //  Created by Jonas Wangelin on 03.11.24.
 //
 
-func checkAccessToken() -> Bool {
+import Foundation
+
+extension strava_connection {
     
-    return true
+    static func isTokenExpired() -> Bool {
+        guard let tokenResponse = strava_connection.loadTokenResponse() else { return false }
+        
+        let secondsStamp = Int(Date().timeIntervalSince1970)
+        print("\(secondsStamp)")
+        print("\(tokenResponse.expiresAt)")
+        
+        return tokenResponse.expiresAt < secondsStamp
+    }
+    
 }
+
