@@ -32,6 +32,7 @@ struct Athlete: Codable {
 //    let measurementPreference: String?
 //    let ftp: Int?
 //    let weight: Double?
+    let tokenResponse: TokenResponse?
 }
 
 
@@ -45,6 +46,7 @@ extension Athlete {
         city: "Test",
         state: "Test",
         country: "Test",
-        sex: "Test"
+        sex: "Test",
+        tokenResponse: TokenResponse(accessToken: "test", refreshToken: "test", expiresAt: 0)
     )
 }

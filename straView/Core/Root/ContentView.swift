@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject private var viewmodel = ContentViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
@@ -19,12 +18,10 @@ struct ContentView: View {
                 signInView()
             }
         }
-        .onAppear {
-            viewmodel.appeared()
-        }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(AuthViewModel())
 }

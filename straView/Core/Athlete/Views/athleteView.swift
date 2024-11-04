@@ -42,4 +42,5 @@ struct athleteView: View {
 
 #Preview {
     athleteView()
+        .environmentObject(AuthViewModel())
 }

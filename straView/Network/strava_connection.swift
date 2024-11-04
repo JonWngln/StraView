@@ -39,6 +39,7 @@ class strava_connection {
                 do {
                     let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
                     self.accessToken = tokenResponse.accessToken
+                    saveTokenResponse(tokenResponse)
                 } catch {
                     print("error: \(error)")
                 }
@@ -55,10 +56,10 @@ class strava_connection {
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        guard let accessToken = strava_connection.accessToken else {
+        guard let tokenResponse = strava_connection.loadTokenResponse() else {
             throw StravaError.invalidToken
         }
-        print(accessToken)
+        let accessToken = tokenResponse.accessToken
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -70,7 +71,6 @@ class strava_connection {
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             let athlete = try decoder.decode(Athlete.self, from: data)
-            print(athlete)
             return athlete
         } catch let decodingError{
             print("Decoding error: \(decodingError)")

@@ -11,10 +11,12 @@ import AuthenticationServices
 @MainActor
 class AuthViewModel: NSObject, ObservableObject {
     @Published var currentAthlete: Athlete?
+    @Published var tokenResponse: TokenResponse?
     
     override init() {
         print("getting athlete")
         currentAthlete = CurrentAthlete.loadStoredAthlete()
+        tokenResponse = strava_connection.loadTokenResponse()
     }
     
     func signIn() {
@@ -27,6 +29,8 @@ class AuthViewModel: NSObject, ObservableObject {
         print("Sign out")
         currentAthlete = nil
         CurrentAthlete.deleteStoredAthlete()
+        tokenResponse = nil
+        strava_connection.removeTokenResponse()
     }
     
     func startInitialAuthSession() {
@@ -67,7 +71,6 @@ class AuthViewModel: NSObject, ObservableObject {
         } catch {
             print("Failed to create athlete: \(error)")
         }
-
     }
 }
 

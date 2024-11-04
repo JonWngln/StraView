@@ -8,13 +8,9 @@
 import SwiftUI
 
 class AthleteViewModel: NSObject, ObservableObject {
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     func getAthlete() async {
-        do {
-            let currentAthlete = try await strava_connection.getAthlete()
-            print(currentAthlete)
-        } catch {
-            print ("Error: \(error)")
-        }
+            await authViewModel.createAthlete()
     }
 }
