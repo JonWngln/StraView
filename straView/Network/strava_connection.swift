@@ -26,7 +26,7 @@ class strava_connection {
         return components?.url
     }
     
-    static func codeExchange(code: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    static func codeExchange(code: String) {
         let url = URL(string: "https://www.strava.com/oauth/token")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -35,26 +35,19 @@ class strava_connection {
         request.httpBody = body.data(using: .utf8)
         
         URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            guard let data = data else {
-                completion(.failure(NSError(domain: "dataNilError", code: -1001, userInfo: nil)))
-                return
-            }
-            do {
-                print(data)
-                let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
-                self.accessToken = tokenResponse.accessToken
-                completion(.success(()))
-            } catch {
-                completion(.failure(error))
+            if let data {
+                do {
+                    let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
+                    self.accessToken = tokenResponse.accessToken
+                } catch {
+                    print("error: \(error)")
+                }
             }
         }.resume()
     }
     
     static func getAthlete() async throws -> Athlete {
+        print("getting Athlete")
         let endpoint = "https://www.strava.com/api/v3/athlete"
         guard let url = URL(string: endpoint) else {
             throw StravaError.invalidURL
@@ -74,7 +67,6 @@ class strava_connection {
         }
         
         do {
-            print(String(data: data, encoding: .utf8) ?? "No readable data")
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             let athlete = try decoder.decode(Athlete.self, from: data)

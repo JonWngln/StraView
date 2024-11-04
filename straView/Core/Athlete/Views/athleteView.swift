@@ -8,34 +8,33 @@
 import SwiftUI
 
 struct athleteView: View {
-    @ObservedObject private var viewModel = AthleteViewModel()
-    
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
-        HStack {
-            VStack {
-                Image(systemName: "person.crop.circle.fill")
-                    .resizable()
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-                HStack {
-                    Text(viewModel.currentAthlete!.firstname!)
-                    Text(viewModel.currentAthlete!.lastname!)
+        if let athlete = authViewModel.currentAthlete {
+            List {
+                Section {
+                    HStack {
+                        Image(systemName: "person.crop.circle.fill")
+                        VStack {
+                            Text(athlete.firstname!)
+                            Text(athlete.lastname!)
+                        }
+                    }
                 }
-            }
-            Text("Hello, Athlete!")
-            
-            Spacer()
-            
-            Button("Logout") {
-                Task {
-                    await viewModel.getAthlete()
+                Section("General") {
+                    HStack {
+                        Text("Version")
+                    }
+                    
                 }
-            }
-        }
-        .onAppear {
-            Task {
-                await viewModel.getAthlete()
+                Section("Account") {
+                    Button("Logout") {
+                        Task {
+                            authViewModel.signOut()
+                        }
+                    }
+                }
             }
         }
     }

@@ -9,10 +9,11 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject private var viewmodel = ContentViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
         VStack {
-            if viewmodel.isLoggedIn {
+            if authViewModel.currentAthlete != nil {
                 athleteView()
             } else {
                 signInView()
