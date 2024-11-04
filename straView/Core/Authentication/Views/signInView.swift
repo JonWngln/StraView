@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct signInView: View {
-    @ObservedObject private var viewModel = SignInViewModel()
-
+    @ObservedObject private var signInViewModel = SignInViewModel()
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
@@ -21,7 +22,7 @@ struct signInView: View {
                     .cornerRadius(10)
                 Spacer()
                     .frame(height: 200)
-                Button(action: { viewModel.signInTapped() } ) {
+                Button(action: { signInViewModel.signInTapped() } ) {
                     Text("Sign in with Strava")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -30,7 +31,11 @@ struct signInView: View {
                         .cornerRadius(10)
                 }
             }
-            
+        }
+        .onReceive(signInViewModel.$isLoggedIn) { isLoggedIn in
+            if isLoggedIn {
+                dismiss() // Navigate back when login is successful
+            }
         }
     }
 }
